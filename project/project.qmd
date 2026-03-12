@@ -18,6 +18,10 @@ library(broom.mixed)
 
 ## Week 8 Tasks
 
+```{r}
+dataset <- read.csv("../data/data.csv")
+```
+
 ### Clean the dataset
 
 ```{r}
@@ -58,7 +62,9 @@ data <- dataset |>
     crp = C.Reactive.Protein..CRP.,
     hgb = Hemoglobin..HGB.,
     vita_d = Vitamin.D
-  )
+  ) |>
+  mutate(comorbid = ifelse(comorbid == 0, 0, 1),
+         gallstone = ifelse(gallstone == 0, 1, 0))
 head(data)
 ```
 
@@ -69,7 +75,7 @@ prior_model <- stan_glm(
   gallstone ~ .,
   data = data,
   family = binomial(link = "logit"),
-  prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = T),
+  prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
   prior = normal(location = 0, scale = 2.5, autoscale = T),
   chains = 4, iter = 5000*2, seed = 84735,
   prior_PD = T, refresh = F, cores = 16
@@ -141,13 +147,16 @@ pp_check(posterior_model, nreps = 1000,
 
 ```{r}
 set.seed(84735)
-classification_summary(model = posterior_model, data = data, cutoff = 0.5)
+range <- seq(from = 0.36, to = 0.53, by = 0.01)
+for (i in range) {
+  print(classification_summary(model = posterior_model, data = data, cutoff = i)$accuracy_rates)
+}
 ```
 
 ```{r}
 set.seed(84735)
 cv_accuracy <- classification_summary_cv(
-  model = posterior_model, data = data, cutoff = 0.5, k = 10)
+  model = posterior_model, data = data, cutoff = 0.395, k = 10)
 ```
 
 ```{r}
