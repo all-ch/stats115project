@@ -66,13 +66,13 @@ head(data)
 
 ```{r}
 prior_model <- stan_glm(
-  gallstone ~ comorbid + gender,
-  data = dataset,
+  gallstone ~ gender,
+  data = data,
   family = binomial(link = "logit"),
-  prior_intercept = normal(qlogis(0.0605), abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = T),
+  prior_intercept = normal(qlogis(0.0605), abs(qlogis(0.065) - qlogis(0.056)) / 2, autoscale = T),
   prior = normal(log(1.1), log(1.1) / 2, autoscale = T),
   chains = 4, iter = 5000*2, seed = 84735,
-  prior_PD = T, refresh = F
+  prior_PD = T, refresh = F, cores = 16
 )
 ```
 
@@ -89,14 +89,6 @@ set.seed(84735)
 data |>
   add_linpred_draws(prior_model, ndraws = 1000) |>
   ggplot(aes(x = gender, y = gallstone)) +
-    geom_line(aes(y = .linpred, group = .draw), size = 0.10, alpha = 0.30)
-```
-
-```{r}
-set.seed(84735)
-data |>
-  add_linpred_draws(prior_model, ndraws = 1000) |>
-  ggplot(aes(x = comorbid, y = gallstone)) +
     geom_line(aes(y = .linpred, group = .draw), size = 0.10, alpha = 0.30)
 ```
 
@@ -126,15 +118,6 @@ set.seed(84735)
 data |>
   add_linpred_draws(posterior_model, ndraws = 1000) |>
   ggplot(aes(x = gender, y = gallstone)) +
-    geom_line(aes(y = .linpred, group = .draw), size = 0.10, alpha = 0.30) +
-    labs(y = "prob of gallstone")
-```
-
-```{r}
-set.seed(84735)
-data |>
-  add_linpred_draws(posterior_model, ndraws = 1000) |>
-  ggplot(aes(x = bmi, y = gallstone)) +
     geom_line(aes(y = .linpred, group = .draw), size = 0.10, alpha = 0.30) +
     labs(y = "prob of gallstone")
 ```
