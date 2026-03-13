@@ -89,7 +89,7 @@ cutoff = 0.475
 set.seed(84735)
 
 posterior_model <- stan_glm(
-  formula = gallstone ~ vita_d + bone_mass,
+  formula = gallstone ~ vita_d + bone_mass + crp,
   data = data,
   family = binomial(link = "logit"),
   prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
@@ -113,7 +113,7 @@ pp_check(posterior_model, nreps = 1000,
 
 ```{r}
 set.seed(84735)
-range <- seq(from = 0.1, to = 0.25, by = 0.001)
+range <- seq(from = 0.47, to = 0.48, by = 0.001)
 for (i in range) {
   print(classification_summary(model = posterior_model, data = data, cutoff = i)$accuracy_rates)
   print(i)
