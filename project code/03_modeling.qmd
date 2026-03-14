@@ -1,0 +1,267 @@
+---
+title: "03_modeling"
+format: pdf
+editor: visual
+---
+
+## Overview of File
+
+This file fits and evaluates the Bayesian logistic regression model for gallstone status.
+
+After the exploratory data analysis, our research question shifted. Instead of focusing on whether comorbidity predicts gallstones, we now are asking:
+
+**How do clinical and body composition variables influence the probability that a patient has gallstones?**
+
+To answer this question, we use Bayesian logistic regression because:
+
+-   the outcome variable, gallstone, is binary
+-   the model allows us to estimate the probability that a patient has gallstones
+-   the Bayesian framework allows us to incorporate prior beliefs and quantify uncertainty through posterior distributions and credible intervals
+
+In this file, we:
+
+-   define a Bayesian logistic regression model
+-   specify priors
+-   fit a prior predictive model
+-   fit the posterior model
+-   chundefinedeck model diagnostics
+-   summarize posterior results
+-   evaluate predictive performance using classification accuracy and cross-validation
+-   perform posterior predictive checks
+
+```{r}
+#| include: false
+# Load Required Libraries
+library(bayesrules)
+library(tidyverse)
+library(rstan)
+library(rstanarm)
+```
+
+```{library(bayesplot)}
+library(tidybayes)
+library(broom.mixed)
+```
+
+```{r}
+# read in the cleaned dataset
+data <- read.csv("../data/cleaned_data.csv")
+```
+
+## Defining Bayesian Logistic Regression Model
+
+We decided to use the following predictors in the final model: vita_d, bone_mass, crp. These variables were selected because the exploratory analysis suggested that they had more meaningful relationships with gallstone status than comorbidity and many of the other variables
+
+Our outcome variable is gallstone, where 1 means patient has gallstones and 0 means patient does not have gallstones. We model the probability of gallstones as a function of Vitamin D, bone mass, and CRP.
+
+$logit(p_i) = \beta_0 + \beta_1(\text{vita_d}_i) + \beta_2(\text{bone_mass}_i) + \beta_3(\text{crp}_i)$
+
+## Prior Model
+
+Before fitting the model to the observed data, we first fit a prior predictive model. This helps us check whether our priors produce reasonable predictions before seeing the data.
+
+For the intercept prior, we use information based on the baseline prevalence of gallstones. For the regression coefficients, we use weakly informative normal priors centered at 0.
+
+```{r}
+# fit prior predictive model
+prior_model <- stan_glm(
+  formula = gallstone ~ vita_d + bone_mass + crp,
+  data = data,
+  family = binomial(link = "logit"),
+  prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
+  prior = normal(location = 0, scale = 2.5, autoscale = T),
+  chains = 4, iter = 5000*2, seed = 84735,
+  prior_PD = T, refresh = F, cores = 16
+)
+```
+
+### Prior Predictive Diagnostics
+
+We checked if the prior model converged correctly and if the prior distributions appear reasonable
+
+```{r}
+# MCMC diagnostics for the prior model
+neff_ratio(prior_model)
+rhat(prior_model)
+
+```
+
+The effective sample size ratios are all greater than 1, suggesting the model did a good job at generating independent information about the parameters. This suggest the model has converged and the results are reliable. The R-hat values are all very close to 1, suggesting the model converged correctly.
+
+```{r}
+# trace plots
+mcmc_trace(prior_model)
+```
+
+In our plots, the chains mix together well, which suggests the sampler explored the parameter space correctly.
+
+```{r}
+# density overlays
+mcmc_dens_overlay(prior_model)
+
+```
+
+In our plots, the density curves for each chain overlap closely, indicating consistent results across chains.
+
+```{r}
+# autocorrelation plots
+mcmc_acf(prior_model)
+
+```
+
+In our plots, the autocorrelation decreases quickly, suggesting the sampling process is working well.
+
+All of the diagnostics suggest that our Bayesian model ran correctly, the chains converged, and the sampling process produced reliable results.
+
+## Posterior Model
+
+Next we updated the model using the observed data to obtain the posterior distribution.
+
+```{r}
+# fitting the posterior model using the observed data
+posterior_model <- update(prior_model, prior_PD = FALSE)
+```
+
+### Posterior Model Diagnostics
+
+```{r}
+# MCMC diagnostics for the posterior model
+neff_ratio(posterior_model)
+rhat(posterior_model)
+```
+
+Similarily to the prior model, the effective sample size ratios are all greater than 1, suggesting the model did a good job at generating independent information about the parameters. This suggest the model has converged and the results are reliable. The R-hat values are all very close to 1, suggesting the model converged correctly.
+
+```{r}
+# trace plots
+mcmc_trace(posterior_model)
+```
+
+Similarly to the prior model, in our plots, the chains mix together well, which suggests the sampler explored the parameter space correctly.
+
+```{r}
+# density overlays
+mcmc_dens_overlay(posterior_model)
+```
+
+Similarly to the prior model, in our plots, the density curves for each chain overlap closely, indicating consistent results across chains.
+
+```{r}
+# autocorrelation plots
+mcmc_acf(posterior_model)
+
+```
+
+Similarly to the prior model, in our plots, the autocorrelation decreases quickly, suggesting the sampling process is working well.
+
+Overall, these diagnostics indicate the posterior model converged and produced reliable samples.
+
+### Posterior Intervals
+
+```{r}
+# 95% posterior intervals on the log-odds scale
+posterior_interval(posterior_model, prob = 0.95)
+exp(posterior_interval(posterior_model, prob = 0.95))
+```
+
+The 95% posterior intervals suggest that all three predictors are related to gallstone risk. Higher Vitamin D and bone mass are associated to an increase in the odds of gallstones, while higher CRP is associated with a decrease in the odds of gallstones. Since none of the intervals include 0, the model suggests these variables are related to gallstone status in the data.
+
+### Tidy Posterior Summary
+
+```{r}
+# tidy symmary
+tidy(posterior_model, effects = "fixed", conf.int = TRUE, conf.level = 0.95)
+
+```
+
+The tidy summary shows that the model suggests that Vitamin D and bone mass increase the odds of gallstones, while CRP decreases the odds. All predictors appear to have meaningful relationships with gallstone status because their intervals do not include zero.
+
+## Evaluation Metrics
+
+### Posterior Predictive Check
+
+```{r}
+# compute the proportion of gallstone cases
+proportion_gallstone <- function(x) {
+  mean(x == 1)
+}
+
+# posterior predictive check
+pp_check(
+  posterior_model,
+  nreps = 1000,
+  plotfun = "stat",
+  stat = "proportion_gallstone"
+) +
+  xlab("Proportion of Gallstones")
+```
+
+The observed proportion of gallstones is slightly higher than most of the simulated proportions from the model. This suggest the model captures the general pattern of the data but tends to underestimate the true proportion of gallstones.
+
+### Classification Performance
+
+```{r}
+# classification summary using cutoff
+set.seed(84735)
+classification_summary(
+  model = posterior_model,
+  data = data,
+  cutoff = 0.475
+)
+```
+
+The model correctly identifies about 76% of people who actually have gallstones and 83% of people who do not have gallstones with an overall 80% accuracy overall. Overall the model performs fairly well, with slightly better performance at identifying people without gallstones than those with gallstones.
+
+### Cross Validation Testing
+
+```{r}
+# cross validation testing
+set.seed(84735)
+cv_accuracy <- classification_summary_cv(
+  model = posterior_model,
+  data = data,
+  cutoff = 0.475,
+  k = 10
+)
+
+cv_accuracy
+
+```
+
+Based on our cross validation testing, we saw that overall the model performs reasonable well, correctly predicting gallstone status about 78% of the time. It is slightly better at identifying people without gallstones than those with gallstones.
+
+## Summary
+
+Although our project originally focused on if comorbidity predicts gallstones, the exploratory data analysis suggested that comorbodoty had only a very weak relationship with gallstone status in this dataset. The correlation between comorbidity and gallstones was close to zero, and the proportion of gallstones appeared similar between patients with and without comorbidities. Because of this, we shifted the focus of the project toward identifying other variables that might better explain the probability of gallstones.
+
+Based on our exploratory analysis, we tested several Bayesian logistic regression models using different combinations of predictors. The models and their approximate classification accuracy were:
+
+-   Model 1 (7 predictors): vita_d + bone_mass + crp + icw + hgb + hfa + gender
+
+    -   **Accuracy about 82%**
+
+-   Model 2 (6 predictors): vita_d + bone_mass + crp + icw + hgb + hfa
+
+    -   **Accuracy about 81.5%**
+
+-   Model 3 (5 predictors): vita_d + bone_mass + crp + icw + hgb
+
+    -   **Accuracy about 80%**
+
+-   Model 4 (4 predictors): vita_d + bone_mass + crp + hgb
+
+    -   **Accuracy about 79%**
+
+-   Model 5 (3 predictors): vita_d + bone_mass + crp
+
+    -   **Accuracy about 80%**
+
+-   Model 6 (1 predictor): comorbid
+
+    -   **Accuracy about 51%**
+
+Although the larger models acheived slightly higher accuracy, the improvements were relatively small. For this reason we went with the three predictor model as our final model becuase it provides a simpler and more interpretable model while maintaining strong predictive performance.
+
+We wanted to note that prior research has suggested that comorbidity may be associated with gallstone disease. The weak relationship observed in this dataset may therefore redlect limitations of the available data, such as how comorbidity was recorded or the specific population represented in the dataset. With a larger dataset or more detailed measures of comorbidity, this variable might still play a meaningful role in predicting gallstone risk.
+
+Overall, the Bayesian logistic regression model allowed us to estimate the probability of gallstones while quantifying uncertainty through posterior distributions and credible intervals. The final model highlights several clinical variables that may help explain variation in gallstone status in this dataset.

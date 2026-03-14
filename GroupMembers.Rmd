@@ -1,0 +1,14 @@
+---
+title: "Group Members"
+format: pdf
+editor: visual
+---
+
+# Group Members
+
+This project was completed by the following group members:
+
+- Olivia Willard
+- YuNing Chou
+- Allinn Chen
+- Mihir Borkar

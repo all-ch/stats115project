@@ -1,0 +1,192 @@
+---
+title: "02_eda"
+format: pdf
+editor: visual
+---
+
+## Overview of File
+
+This file performs exploratory data analysis (EDA) on the cleaned dataset. The goal of this step is to better understand the structure of the data and examine relationships between variables before fitting the Bayesian Logistic Regression model.
+
+The EDA process includes:
+
+-   examining the distribution of the outcome variable (gallstones)
+
+-   looking at distributions of key predictors
+
+-   exploring relationships between variables
+
+-   creating a correlation plot to identify variables that may be useful predictors
+
+## Exploratory Data Analysis
+
+```{r}
+#| include: false
+# Load Required Libraries
+library(tidyverse)
+library(corrplot)
+library(ggcorrplot)
+```
+
+```{r}
+# read in the cleaned dataset
+data <- read.csv("../data/cleaned_data.csv")
+```
+
+### Distribution of Gallstone Outcome
+
+```{r}
+# distribution of gallstone outcome
+ggplot(data, aes(x = factor(gallstone))) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Gallstone Status",
+    x = "Gallstone Status (1 = Gallstones, 0 = No Gallstones)",
+    y = "Count"
+  )
+```
+
+The plot shows that the outcome is relatively balanced.
+
+### Exploring Comorbidity
+
+```{r}
+# comorbidity vs gallstones
+ggplot(data, aes(x = factor(comorbid), fill = factor(gallstone))) +
+  geom_bar(position = "fill") +
+  labs(
+    title = "Comorbidity vs Gallstone Status",
+    x = "Comorbidity (0 = none, 1 = at least one)",
+    y = "Proportion",
+    fill = "Gallstones"
+  )
+```
+
+```{r}
+table(data$comorbid, data$gallstone)
+prop.table(table(data$comorbid, data$gallstone), 1)
+
+```
+
+The proportions of patients with and without gallstones appear fairly similar across the two comorbidity groups. This suggests that comorbidity may not be a strong standalone predictor of gallstone status in this dataset.
+
+### Correlation Analysis
+
+Next, we decided to examine correlations among numeric variables, helping us identify variables that may be associated with gallstone status and also helps us check for predictors that may be highly related to one another,
+
+```{r}
+# correlation analysis
+numeric_data <- data |> 
+  select(where(is.numeric))
+
+corr <- cor(numeric_data)
+ggcorrplot(corr,
+           lab = FALSE,
+           colors = c("blue", "white", "red"),
+           tl.cex = 8)
+
+```
+
+This correlation matrix gives us a visual overview of the linear relationships between numeric variables. We are interested in which variables appear more related to gallstone.
+
+```{r}
+correlations <- cor(data)
+
+correlations["gallstone", ]
+```
+
+These correlations help identify which variables may be worth testing in the Bayesian logistic regression model. While correlation alone does not determine the final model, it is a useful exploratory step for narrowing down predictors.
+
+This result supports our earlier visual analysis and furhter motivates the decision to not focus on comorbidity as a primary predictor in the final model. Some variables show slightly stronger correlations with gallstone status. For example:
+
+-   Vitamin D (0.355)
+
+-   CRP (-0.282)
+
+-   Bone Mass (0.217)
+
+-   Lean Mass (0.226)
+
+-   BFR (-0.225)
+
+While these correlations are relatively small, they are stronger than most other variables in the dataset, which suggests that these predictors may be more informative for modeling gallstone risk.
+
+### Boxplots of Key Predictors
+
+```{r}
+# distribution of Vitamin D
+ggplot(data, aes(x = factor(gallstone), y = vita_d)) +
+  geom_boxplot() +
+  labs(
+    title = "Vitamin D by Gallstone Status",
+    x = "Gallstone Status",
+    y = "Vitamin D"
+  )
+
+```
+
+```{r}
+# distribution of CRP
+ggplot(data, aes(x = factor(gallstone), y = crp)) +
+  geom_boxplot() +
+  labs(
+    title = "CRP by Gallstone Status",
+    x = "Gallstone Status",
+    y = "CRP"
+  )
+
+```
+
+```{r}
+# distribution of Bone Mass
+ggplot(data, aes(x = factor(gallstone), y = bone_mass)) +
+  geom_boxplot() +
+  labs(
+    title = "Bone Mass by Gallstone Status",
+    x = "Gallstone Status",
+    y = "Bone Mass"
+  )
+
+```
+
+```{r}
+# distribution of Lean Mass
+ggplot(data, aes(x = factor(gallstone), y = lean_mass)) +
+  geom_boxplot() +
+  labs(
+    title = "Lean Mass by Gallstone Status",
+    x = "Gallstone Status",
+    y = "Lean Mass"
+  )
+```
+
+```{r}
+# distribution of BFR
+ggplot(data, aes(x = factor(gallstone), y = bfr)) +
+  geom_boxplot() +
+  labs(
+    title = "BFR by Gallstone Status",
+    x = "Gallstone Status",
+    y = "BFR"
+  )
+```
+
+## Summary of EDA Findings
+
+Overall, the exploratory analysis helped us better understand the dataset and refine the direction of the project.
+
+Main takeaways from the EDA:
+
+-   outcome variable gallstone is clearly defined and can be analyzed as a binary variable
+
+-   comorbidity did not appear to strongly separate patients with and without gallstones
+
+-   because of this we decided not to center the final model around comorbidity
+
+-   other variables such as Vitamin D, CRP, Bone Mass, Lean Mass, and BFR appeared more promising and were therefore considered in later model testing
+
+These steps help guide us to which variables should be included in the final model. In the early stage of this project, we were interested in if comrobidity would be an important predictor of gallstones. However, after exploring the data, we found that the proportion of gallstones was fairly similar between patients with and without comorbidities. This suggested that comorbidity was not strongly separating the two groups. Because of this, we shifted the focus of the project away from comorbidity and toward other predictors that appeared to have stronger relationships with gallstone status, such as Vitamin D, CRP, bone mass, lean mass, and BFR.
+
+## Refined Research Question
+
+We decided to refine our research question, rather than focusing on whether comorbidity predicts gallstones, we instead want to ask: **How do clinical and body composition variables influence the probability that a patient has gallstones?**

@@ -1,0 +1,108 @@
+---
+title: "01_data_cleaning"
+format: pdf
+editor: visual
+---
+
+## Overview of File
+
+This file prepares the dataset for analysis. The file converts the raw dataset into a clean and usable format for exploratory data analysis and Bayesian modeling.
+
+The cleaning process includes:
+
+-   loading the dataset
+
+-   inspecting the structure of the raw data
+
+-   renaming variables to simpler names
+
+-   converting variables to consistent binary formats
+
+## Data Cleaning
+
+```{r}
+#| include: false
+# Load Required Libraries
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+# read in the raw dataset
+dataset <- read.csv("../data/data.csv")
+```
+
+```{r}
+# inspect structure of the raw dataset
+glimpse(dataset)
+```
+
+```{r}
+# renaming variables to simpler names
+data <- dataset |>
+  select(
+    gallstone = Gallstone.Status,
+    gender = Gender,
+    age = Age,
+    bfr = Total.Body.Fat.Ratio..TBFR.....,
+    bmi = Body.Mass.Index..BMI.,
+    glucose = Glucose,
+    comorbid = Comorbidity,
+    height = Height,
+    weight = Weight,
+    tbw = Total.Body.Water..TBW.,
+    ecw = Extracellular.Water..ECW.,
+    icw = Intracellular.Water..ICW.,
+    ecftbw = Extracellular.Fluid.Total.Body.Water..ECF.TBW.,
+    tbfr = Total.Body.Fat.Ratio..TBFR.....,
+    lean_mass = Lean.Mass..LM.....,
+    bpc = Body.Protein.Content..Protein.....,
+    vfr = Visceral.Fat.Rating..VFR.,
+    bone_mass = Bone.Mass..BM.,
+    musc_mass = Muscle.Mass..MM.,
+    obesity = Obesity....,
+    tfc = Total.Fat.Content..TFC.,
+    vfa = Visceral.Fat.Area..VFA.,
+    vma = Visceral.Muscle.Area..VMA...Kg.,
+    hfa = Hepatic.Fat.Accumulation..HFA.,
+    tc = Total.Cholesterol..TC.,
+    ldl = Low.Density.Lipoprotein..LDL.,
+    hdl = High.Density.Lipoprotein..HDL.,
+    trigly = Triglyceride,
+    alt = Alanin.Aminotransferaz..ALT.,
+    alp = Alkaline.Phosphatase..ALP.,
+    creat = Creatinine,
+    gfr = Glomerular.Filtration.Rate..GFR.,
+    crp = C.Reactive.Protein..CRP.,
+    hgb = Hemoglobin..HGB.,
+    vita_d = Vitamin.D
+  ) 
+```
+
+```{r}
+# reverse coding of gallstone variable
+data <- data |>
+  mutate(gallstone = ifelse(gallstone == 0, 1, 0))
+```
+
+The gallstone variable indicates if a patient has gallstones. We convert the values so that the variable is coded as a binary outcome:
+
+-   1 = patient has gallstones
+
+-   0 = patient does not have gallstones
+
+In the original dataset, the value 0 indicated that a patient had gallstones. We reversed this coding so that 1 represents having gallstones and 0 represents not having gallstones. This is important because logistic regression models have the probability of the outcome coded as 1, so we want the value 1 to represent the event of interest, which in this case is having gallstones.
+
+```{r}
+# convert comorbid variable to binary
+data <- data |>
+  mutate(comorbid = ifelse(comorbid == 0, 0, 1))
+```
+
+In the original dataset, the comorbid variable contained multiple categories representing different levels of comorbidity. For this analysis, we converted it into a binary variable where 0 indicates no comorbidities and 1 indicates the presence of at least one comorbidity. This simplifies the variable and allows us to examine whether having any comorbidity is associated with gallstones without modeling several separate categories.
+
+```{r}
+# save cleaned dataset so it can be used in later analysis files
+write.csv(data, "../data/cleaned_data.csv", row.names = FALSE)
+
+```
