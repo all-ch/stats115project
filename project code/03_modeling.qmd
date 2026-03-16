@@ -44,7 +44,7 @@ library(bayesplot)
 library(loo)
 library(dplyr)
 
-
+set.seed(84735)
 ```
 
 ```{r}
@@ -335,12 +335,29 @@ classification_summary(model_6, data = data, cutoff = 0.475)
 ```
 
 ```{r}
-loo_model_1 <- loo(model_1)
-loo_model_2 <- loo(model_2)
-loo_model_3 <- loo(model_3)
-loo_model_4 <- loo(model_4)
-loo_model_5 <- loo(model_5)
-loo_model_6 <- loo(model_6)
+set.seed(84735)
+
+classification_summary_cv(model_1, data = data, cutoff = 0.366, k = 10)
+
+classification_summary_cv(model_2, data = data, cutoff = 0.377, k = 10)
+
+classification_summary_cv(model_3, data = data, cutoff = 0.414, k = 10)
+
+classification_summary_cv(model_4, data = data, cutoff = 0.455, k = 10)
+
+classification_summary_cv(model_5, data = data, cutoff = 0.475, k = 10)
+
+classification_summary_cv(model_6, data = data, cutoff = 0.475, k = 10)
+```
+
+```{r}
+set.seed(84735)
+loo_model_1 <- loo(model_1, k_threshold = 0.7)
+loo_model_2 <- loo(model_2, k_threshold = 0.7)
+loo_model_3 <- loo(model_3, k_threshold = 0.7)
+loo_model_4 <- loo(model_4, k_threshold = 0.7)
+loo_model_5 <- loo(model_5, k_threshold = 0.7)
+loo_model_6 <- loo(model_6, k_threshold = 0.7)
 
 loo_compare(
   loo_model_1,
@@ -352,8 +369,18 @@ loo_compare(
 )
 ```
 
-Although the larger models acheived slightly higher accuracy, the improvements were relatively small. For this reason we went with the three predictor model as our final model becuase it provides a simpler and more interpretable model while maintaining strong predictive performance.
+```{r}
+pp_check(model_1)
+pp_check(model_2)
+pp_check(model_3)
+pp_check(model_4)
+pp_check(model_5)
+pp_check(model_6)
+```
 
-We wanted to note that prior research has suggested that comorbidity may be associated with gallstone disease. The weak relationship observed in this dataset may therefore redlect limitations of the available data, such as how comorbidity was recorded or the specific population represented in the dataset. With a larger dataset or more detailed measures of comorbidity, this variable might still play a meaningful role in predicting gallstone risk.
+
+Although the larger models achieved slightly higher accuracy, the improvements were relatively small. For this reason we went with the three predictor model as our final model because it provides a simpler and more interpretable model while maintaining strong predictive performance.
+
+We wanted to note that prior research has suggested that comorbidity may be associated with gallstone disease. The weak relationship observed in this dataset may therefore reflect limitations of the available data, such as how comorbidity was recorded or the specific population represented in the dataset. With a larger dataset or more detailed measures of comorbidity, this variable might still play a meaningful role in predicting gallstone risk.
 
 Overall, the Bayesian logistic regression model allowed us to estimate the probability of gallstones while quantifying uncertainty through posterior distributions and credible intervals. The final model highlights several clinical variables that may help explain variation in gallstone status in this dataset.
