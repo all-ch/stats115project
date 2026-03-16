@@ -40,9 +40,12 @@ library(posterior)
 library(tidybayes)
 library(janitor)
 library(broom.mixed)
-```
+library(bayesplot)
+library(loo)
+library(dplyr)
 
-`{library(bayesplot)} library(tidybayes) library(broom.mixed)`
+
+```
 
 ```{r}
 # read in the cleaned dataset
@@ -131,7 +134,7 @@ neff_ratio(posterior_model)
 rhat(posterior_model)
 ```
 
-Similarily to the prior model, the effective sample size ratios are all greater than 1, suggesting the model did a good job at generating independent information about the parameters. This suggest the model has converged and the results are reliable. The R-hat values are all very close to 1, suggesting the model converged correctly.
+Similarly to the prior model, the effective sample size ratios are all greater than 1, suggesting the model did a good job at generating independent information about the parameters. This suggest the model has converged and the results are reliable. The R-hat values are all very close to 1, suggesting the model converged correctly.
 
 ```{r}
 # trace plots
@@ -239,27 +242,27 @@ Based on our exploratory analysis, we tested several Bayesian logistic regressio
 
 -   Model 1 (7 predictors): vita_d + bone_mass + crp + icw + hgb + hfa + gender
 
-    -   **Accuracy about 82%**
+    -   **Accuracy about 81.82%**
 
 -   Model 2 (6 predictors): vita_d + bone_mass + crp + icw + hgb + hfa
 
-    -   **Accuracy about 81.5%**
+    -   **Accuracy about 80.25%**
 
 -   Model 3 (5 predictors): vita_d + bone_mass + crp + icw + hgb
 
-    -   **Accuracy about 80%**
+    -   **Accuracy about 79.62%**
 
 -   Model 4 (4 predictors): vita_d + bone_mass + crp + hgb
 
-    -   **Accuracy about 79%**
+    -   **Accuracy about 78.99%**
 
 -   Model 5 (3 predictors): vita_d + bone_mass + crp
 
-    -   **Accuracy about 80%**
+    -   **Accuracy about 79.62%**
 
 -   Model 6 (1 predictor): comorbid
 
-    -   **Accuracy about 51%**
+    -   **Accuracy about 49.53%**
 
 ```{r}
 model_1 <- stan_glm(
@@ -314,6 +317,38 @@ model_6 <- stan_glm(
   prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
   prior = normal(location = 0, scale = 2.5, autoscale = T),
   chains = 4, iter = 5000*2, seed = 84735, refresh = F
+)
+```
+
+```{r}
+classification_summary(model_1, data = data, cutoff = 0.366)
+
+classification_summary(model_2, data = data, cutoff = 0.377)
+
+classification_summary(model_3, data = data, cutoff = 0.414)
+
+classification_summary(model_4, data = data, cutoff = 0.455)
+
+classification_summary(model_5, data = data, cutoff = 0.475)
+
+classification_summary(model_6, data = data, cutoff = 0.475)
+```
+
+```{r}
+loo_model_1 <- loo(model_1)
+loo_model_2 <- loo(model_2)
+loo_model_3 <- loo(model_3)
+loo_model_4 <- loo(model_4)
+loo_model_5 <- loo(model_5)
+loo_model_6 <- loo(model_6)
+
+loo_compare(
+  loo_model_1,
+  loo_model_2,
+  loo_model_3,
+  loo_model_4,
+  loo_model_5,
+  loo_model_6
 )
 ```
 
