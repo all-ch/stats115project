@@ -24,7 +24,7 @@ In this file, we:
 -   specify priors
 -   fit a prior predictive model
 -   fit the posterior model
--   chundefinedeck model diagnostics
+-   check model diagnostics
 -   summarize posterior results
 -   evaluate predictive performance using classification accuracy and cross-validation
 -   perform posterior predictive checks
@@ -36,12 +36,13 @@ library(bayesrules)
 library(tidyverse)
 library(rstan)
 library(rstanarm)
-```
-
-```{library(bayesplot)}
+library(posterior)
 library(tidybayes)
+library(janitor)
 library(broom.mixed)
 ```
+
+`{library(bayesplot)} library(tidybayes) library(broom.mixed)`
 
 ```{r}
 # read in the cleaned dataset
@@ -259,6 +260,62 @@ Based on our exploratory analysis, we tested several Bayesian logistic regressio
 -   Model 6 (1 predictor): comorbid
 
     -   **Accuracy about 51%**
+
+```{r}
+model_1 <- stan_glm(
+  formula = gallstone ~ vita_d + bone_mass + crp + icw + hgb + hfa + gender,
+  data = data,
+  family = binomial(link = "logit"),
+  prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
+  prior = normal(location = 0, scale = 2.5, autoscale = T),
+  chains = 4, iter = 5000*2, seed = 84735, refresh = F
+)
+
+model_2 <- stan_glm(
+  formula = gallstone ~ vita_d + bone_mass + crp + icw + hgb + hfa,
+  data = data,
+  family = binomial(link = "logit"),
+  prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
+  prior = normal(location = 0, scale = 2.5, autoscale = T),
+  chains = 4, iter = 5000*2, seed = 84735, refresh = F
+)
+
+model_3 <- stan_glm(
+  formula = gallstone ~ vita_d + bone_mass + crp + icw + hgb,
+  data = data,
+  family = binomial(link = "logit"),
+  prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
+  prior = normal(location = 0, scale = 2.5, autoscale = T),
+  chains = 4, iter = 5000*2, seed = 84735, refresh = F
+)
+
+model_4 <- stan_glm(
+  formula = gallstone ~ vita_d + bone_mass + crp + hgb,
+  data = data,
+  family = binomial(link = "logit"),
+  prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
+  prior = normal(location = 0, scale = 2.5, autoscale = T),
+  chains = 4, iter = 5000*2, seed = 84735, refresh = F
+)
+
+model_5 <- stan_glm(
+  formula = gallstone ~ vita_d + bone_mass + crp,
+  data = data,
+  family = binomial(link = "logit"),
+  prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
+  prior = normal(location = 0, scale = 2.5, autoscale = T),
+  chains = 4, iter = 5000*2, seed = 84735, refresh = F
+)
+
+model_6 <- stan_glm(
+  formula = gallstone ~ comorbid,
+  data = data,
+  family = binomial(link = "logit"),
+  prior_intercept = normal(location = qlogis(0.0605), scale = abs(qlogis(0.065) - qlogis(0.056)) / 4, autoscale = F),
+  prior = normal(location = 0, scale = 2.5, autoscale = T),
+  chains = 4, iter = 5000*2, seed = 84735, refresh = F
+)
+```
 
 Although the larger models acheived slightly higher accuracy, the improvements were relatively small. For this reason we went with the three predictor model as our final model becuase it provides a simpler and more interpretable model while maintaining strong predictive performance.
 

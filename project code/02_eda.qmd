@@ -72,7 +72,9 @@ The proportions of patients with and without gallstones appear fairly similar ac
 
 ### Correlation Analysis
 
-Next, we decided to examine correlations among numeric variables, helping us identify variables that may be associated with gallstone status and also helps us check for predictors that may be highly related to one another,
+Next, we examined correlations among numeric variables. This helps us identify variables that may be associated with gallstone status and also allows us to check for predictors that are highly correlated with each other. We thought that doing a correlation analysis would be useful to identify variables related to gallstones and help narrow down which predictors should be considered in the final Bayesian Logistic Regression Model.
+
+If two predictors are highly correlated with each other, they may contain very similar information. In this case, we kept the variable that has a stronger relationship with gallstone status and ignore the other.
 
 ```{r}
 # correlation analysis
@@ -97,7 +99,7 @@ correlations["gallstone", ]
 
 These correlations help identify which variables may be worth testing in the Bayesian logistic regression model. While correlation alone does not determine the final model, it is a useful exploratory step for narrowing down predictors.
 
-This result supports our earlier visual analysis and furhter motivates the decision to not focus on comorbidity as a primary predictor in the final model. Some variables show slightly stronger correlations with gallstone status. For example:
+This result supports our earlier visual analysis and further motivates the decision to not focus on comorbidity as a primary predictor in the final model. Some variables show slightly stronger correlations with gallstone status. For example:
 
 -   Vitamin D (0.355)
 
