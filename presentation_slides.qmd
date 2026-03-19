@@ -3,16 +3,12 @@ title: "presentation_slides"
 format: html
 ---
 
-## Why would we care?
+## Topic and Motivation
 
-- Gallstones are a common digestive conditions affecting millions, which can lead to serious complications is untreated
-- Understanding risk factors helps:
-  - Early detection
-  - Better clinical decision making 
-- Goal: Our goal is to use Bayesian logistic regression model to estimate **probability of gallstones** 
+
+
 
 ---
-
 ## Research Question
 
 **Initial Question:**
@@ -22,14 +18,25 @@ format: html
   - How do clinical and body composition variables influence the probability that a patient has gallstones?
 
 ---
+## Why would we care?
+
+- Gallstones are a common digestive conditions affecting millions, which can lead to serious complications is untreated
+- Understanding risk factors helps:
+  - Early detection
+  - Better clinical decision making 
+- We were interested in whether comorbidity predicts gallstones
+- Goal: Our goal is to use Bayesian modeling (logistic regression model) to estimate **probability of gallstones** 
+
+---
 
 ## Dataset
 
 - Data: Gallstone dataset (health/ body composition)
 - Source: UCI Irvine Machine Learning Repository
+  - Contains clinical data collected from the Internal Medicine Outpatient Clinic of Ankara VN Medical Park Hospital in Turkey
+  - Contains information on 319 patients, of whom 161 were diagnosed with gallstone disease
+  - Contains 38 variables describing patient health and characteristics
 - Observations: Patients with various clinical measurements 
-
----
 
 **Key Variables**
 - Outcomes: Gallstone Status(gallstone / 1 = yes, 0 = no)
@@ -49,6 +56,8 @@ format: html
 - We converted variables to binary:
   - Gallstone (reserved coding)
   - Comorbidity → 0/1
+    - 0 = no comorbidity
+    - 1 = at least one comorbidity
 - Ensure the consistency for modeling 
 
 **Why is this important?**
@@ -61,7 +70,9 @@ format: html
 
 **Key Findings:**
 - The gallstone outcome is relatively balanced and can be analyzed as a binary variable
-- Comorbidity shows a weak relationship with gallstones (may not be a strong stand alone predictor of gallstone status)
+- Comorbidity shows a weak relationship with gallstones 
+  - Comorbidity did not strongly separate patients with and without gallstones
+  - Comorbidity may not be a strong stand alone predictor of gallstone status
 - Higher correlation with gallstone status:
   - Vitamin D
   - CRP
@@ -82,6 +93,10 @@ Why?
 - Estimates probability directly
 - Allows use of prior knowledge
 - Provides uncertainty via posterior distributions
+And:
+- Bayesian methods let us:
+  - include prior information
+  - quantify uncertainty with posterior distributions and credible intervals
 
 ## Model Setup
 
