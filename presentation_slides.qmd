@@ -10,15 +10,13 @@ format:
 editor: visual
 ---
 
-
 ## Topic and Motivation
 
-- Gallstones are a common condition that can lead to serious complications  
-- Many clinical and body composition variables may influence gallstone risk  
-- It is unclear which predictors are most important  
+-   Gallstones are a common condition that can lead to serious complications\
+-   Many clinical and body composition variables may influence gallstone risk\
+-   It is unclear which predictors are most important
 
-**Goal:** Identify key predictors of gallstones and estimate risk  
-
+**Goal:** Identify key predictors of gallstones and estimate risk
 
 ## Research Question
 
@@ -26,28 +24,26 @@ editor: visual
 
 **Refined Question:** How do clinical and body composition variables influence the probability that a patient has gallstones?
 
-
 ## Dataset
 
-- Source: UCI Irvine Machine Learning Repository
-  - Contains clinical data collected from the Internal Medicine Outpatient Clinic of Ankara VN Medical Park Hospital in Turkey
-  - Contains information on 319 patients, of whom 161 were diagnosed with gallstone disease
-  - Contains 38 variables describing patient health and characteristics
-
+-   Source: UCI Irvine Machine Learning Repository
+    -   Contains clinical data collected from the Internal Medicine Outpatient Clinic of Ankara VN Medical Park Hospital in Turkey
+    -   Contains information on 319 patients, of whom 161 were diagnosed with gallstone disease
+    -   Contains 38 variables describing patient health and characteristics
 
 ## Data Cleaning
 
-- Renamed variables for clarity
-- We converted variables to binary:
-  - Gallstone (reserved coding)
-    - 0 = does not have gallstones
-    - 1 = has gallstones
-  - Comorbidity
-    - 0 = no comorbidities
-    - 1 = at least one comorbidity
-
+-   Renamed variables for clarity
+-   We converted variables to binary:
+    -   Gallstone (reserved coding)
+        -   0 = does not have gallstones
+        -   1 = has gallstones
+    -   Comorbidity
+        -   0 = no comorbidities
+        -   1 = at least one comorbidity
 
 ## EDA: Gallstone Outcomes
+
 ```{r}
 #| echo: false
 #| message: false
@@ -68,8 +64,6 @@ ggplot(data, aes(x = factor(gallstone))) +
   )
 ```
 
-
-
 ## EDA: Comorbidity vs Gallstones
 
 ```{r}
@@ -89,7 +83,6 @@ ggplot(data, aes(x = factor(comorbid), fill = factor(gallstone))) +
     fill = "Gallstones"
   )
 ```
-
 
 ## EDA: Correlation Between Variables
 
@@ -129,45 +122,37 @@ ggcorrplot(
 )
 ```
 
-
 ## EDA: Conclusion
 
-- Comorbidity showed weak predictive value  
-- Other clinical and body composition variables showed stronger relationships  
+-   Comorbidity showed weak predictive value\
+-   Other clinical and body composition variables showed stronger relationships
 
 **Decision:**
 
-- Shift focus from comorbidity → multiple predictors
+-   Shift focus from comorbidity → multiple predictors
 
-
-
-## Model Choice 
-
+## Model Choice
+::: {style="font-size: 0.7em; line-height: 1.1;"}
 We used a **Bayesian Logistic Regression** model
 
 **Why?**
 
-- Binary outcome: gallstones vs. no gallstones
-- Directly models probabilities
-- Incorporates prior information
-- Provides uncertainty estimates
-
-
-
-<div style="font-size: 0.7em;">
-
+-   Binary outcome: gallstones vs. no gallstones
+-   Directly models probabilities
+-   Incorporates prior information
+-   Provides uncertainty estimates
+:::
+::: {style="font-size: 0.7em;"}
 $$
 \text{logit}(p_i) = \beta_0 + \beta_1(\text{vita_d}_i) + \beta_2(\text{bone_mass}_i) + \beta_3(\text{crp}_i) + \beta_4(\text{icw}_i) + \beta_5(\text{hgb}_i)
 $$
-
-</div>
-
-- Main predictors selected based on EDA findings: Vitamin D, bone mass, CRP, ICW, and HGB
-
-
+:::
+::: {style="font-size: 0.7em; line-height: 1.1;"}
+-   Main predictors selected based on EDA findings: Vitamin D, bone mass, CRP, ICW, and HGB
+:::
 ## Prior Model
-<div style="font-size: 0.6em; line-height: 1.1;">
 
+::: {style="font-size: 0.6em; line-height: 1.1;"}
 ```{r}
 #| eval: true
 #| echo: true
@@ -189,33 +174,31 @@ prior_model <- stan_glm(
 )
 ```
 
-- Intercept:
-  - Intercept prior based on baseline gallstone prevalence obtained from research (~6%)
-- Coefficients:
-  - Weakly informative Normal priors centered at 0 for regression coefficients (0, 2.5)
+-   Intercept:
+    -   Intercept prior based on baseline gallstone prevalence obtained from research (\~6%)
+-   Coefficients:
+    -   Weakly informative Normal priors centered at 0 for regression coefficients (0, 2.5)
 
 **Why?**
 
-- Prevent extreme estimates
-- Still allow data to dominate
-</div>
-
+-   Prevent extreme estimates
+-   Still allow data to dominate
+:::
 
 ## Model Checking and Results
 
-- Trace plots showed good chain mixing
-- R-hat values were close to 1 (convergence achieved)
-- Density plot shows consistent chains
-- Effective sample sizes were acceptable
-- Posterior predictive checks suggested the model captured the general pattern of the data
+-   Trace plots showed good chain mixing
+-   R-hat values were close to 1 (convergence achieved)
+-   Density plot shows consistent chains
+-   Effective sample sizes were acceptable
+-   Posterior predictive checks suggested the model captured the general pattern of the data
 
 **Conclusion:**
 
-- Model is reliable
-
-
+-   Model is reliable
 
 ## Posterior Model
+
 ```{r}
 #| eval: true
 #| echo: true
@@ -225,13 +208,12 @@ prior_model <- stan_glm(
 posterior_model <- update(prior_model, prior_PD = FALSE)
 ```
 
-- After specifying the priors, we updated the model using the observed data to obtain the posterior distribution.
+-   After specifying the priors, we updated the model using the observed data to obtain the posterior distribution.
 
-- This allowed us to estimate how each predictor was associated with the probability of gallstones while incorporating uncertainty.
-
-
+-   This allowed us to estimate how each predictor was associated with the probability of gallstones while incorporating uncertainty.
 
 ## Model Checking and Results
+
 ```{r}
 #| eval: true
 #| echo: true
@@ -245,126 +227,133 @@ classification_summary(
   cutoff = 0.475
 )
 ```
+::: {style="font-size: 0.7em; line-height: 1.1;"}
+-   Accuracy ≈ **79–80%**
+-   Sensitivity:
+    -   \~76% (detecting gallstones)
+-   Specificity:
+    -   \~82% (detecting no gallstones)
 
-- Accuracy ≈ **79–80%**
-- Sensitivity:
-  - ~76% (detecting gallstones)
-- Specificity:
-  - ~82% (detecting no gallstones)
-
-**Cross-validation:**
-- ~80% accuracy → stable performance
-
-
-
+**Cross-validation:** - \~80% accuracy → stable performance
+:::
 ## Model Checking and Results
 
 The model suggests:
 
-- Higher **Vitamin D**, **bone mass**, and **HGB** are associated with higher odds of gallstones
-- Higher **CRP** and **ICW** are associated with lower odds of gallstones
+-   Higher **Vitamin D**, **bone mass**, and **HGB** are associated with higher odds of gallstones
+-   Higher **CRP** and **ICW** are associated with lower odds of gallstones
 
 Because the posterior intervals did not include 0, these predictors appeared meaningfully related to gallstone status in this dataset.
 
+## Model Comparison
 
-
-## Model Comparision
-<div style="font-size: 0.5em; line-height: 1.1;">
-
+::: {style="font-size: 0.5em; line-height: 1.1;"}
 We have tested with 6 different models containing the different amount of predictors:
 
-- Model 1 (7 predictors): vita_d + bone_mass + crp + icw + hgb + hfa + gender 
-  - Accuracy about 81.82%
-- Model 2 (6 predictors): vita_d + bone_mass + crp + icw + hgb + hfa
-  - Accuracy about 80.25%
-- Model 3 (5 predictors): vita_d + bone_mass + crp + icw + hgb
-  - Accuracy about 79.62%
-- Model 4 (4 predictors): vita_d + bone_mass + crp + hgb
-  - Accuracy about 78.99%
-- Model 5 (3 predictors): vita_d + bone_mass + crp
-  - Accuracy about 79.62%
-- Model 6 (1 predictor): comorbid
-  - Accuracy about 49.53%
+-   Model 1 (7 predictors): vita_d + bone_mass + crp + icw + hgb + hfa + gender
+    -   Accuracy about 81.82%
+-   Model 2 (6 predictors): vita_d + bone_mass + crp + icw + hgb + hfa
+    -   Accuracy about 80.25%
+-   Model 3 (5 predictors): vita_d + bone_mass + crp + icw + hgb
+    -   Accuracy about 79.62%
+-   Model 4 (4 predictors): vita_d + bone_mass + crp + hgb
+    -   Accuracy about 78.99%
+-   Model 5 (3 predictors): vita_d + bone_mass + crp
+    -   Accuracy about 79.62%
+-   Model 6 (1 predictor): comorbid
+    -   Accuracy about 49.53%
+:::
+## Model Comparison
+::: {style="font-size: 0.5em; line-height: 1.1;"}
+Here are the CV Classification Accuracy outputs and ELPD comparison:
+
+-   Model 1 (7 predictors): vita_d + bone_mass + crp + icw + hgb + hfa + gender
+    -   Sens: \~81.63%, Spec: \~77.59%, Acc: \~79.64%; ELPD_diff: -0.2, SE_diff: 2.3
+-   Model 2 (6 predictors): vita_d + bone_mass + crp + icw + hgb + hfa
+    -   Sens: \~81.13%, Spec: \~78.24%, Acc: \~79.92%; ELPD_diff: -0.1, SE_diff: 2.0
+-   Model 3 (5 predictors): vita_d + bone_mass + crp + icw + hgb
+    -   Sens: \~79.28%, Spec: \~77.70%, Acc: \~78.72%; ELPD_diff: 0, SE_diff: 0
+-   Model 4 (4 predictors): vita_d + bone_mass + crp + hgb
+    -   Sens: \~77.17%, Spec: \~79.25%, Acc: \~78.37%; ELPD_diff: -21.6, SE_diff: 7.6
+-   Model 5 (3 predictors): vita_d + bone_mass + crp
+    -   Sens: \~74.59%, Spec: \~83.09%, Acc: \~78.69%; ELPD_diff: -21.0, SE_diff: 7.6 
+-   Model 6 (1 predictor): comorbid
+    -   Sens: \~0%, Spec: \~100%, Acc: \~49.52%; ELPD_diff: -256.5, SE_diff: 41.4 
 
 **Results:**
 
-- Models 1, 2, and 3 performed best and performed similarly under cross-validation and LOOCV
-- Model 6 (comorbidity only):
-  - ~49% accuracy → very poor
-</div>
-
+-   Models 1, 2, and 3 performed best and performed similarly under cross-validation and LOOCV
+-   Model 6 (comorbidity only):
+    -   \~49% accuracy → very poor
+:::
 
 ## Final Model Choice
-<div style="font-size: 0.7em; line-height: 1.1;">
+::: {style="font-size: 0.7em; line-height: 1.1;"}
 We selected **Model 3**:
 
-- Predictors: Vitamin D, bone mass, CRP, ICW, HGB
-- Balanced predictive performance and simplicity
-- Similar performance to larger models with fewer predictors
-- Better sensitivity than the smaller 3-predictor model
+-   Predictors: Vitamin D, bone mass, CRP, ICW, HGB
+-   Balanced predictive performance and simplicity
+-   Similar performance to larger models with fewer predictors
+-   Better sensitivity than the smaller 3-predictor model
 
 Performance:
 
-- Overall accuracy: about **79–80%**
-- Better at identifying patients without gallstones than patients with gallstones
-
-</div>
-
+-   Overall accuracy: about **79–80%**
+-   Better at identifying patients without gallstones than patients with gallstones
+:::
+## Fairness and How Wrong
+::: {style="font-size: 0.7em; line-height: 1.1;"}
+-   Data is collected by the hospital, without harm to patients
+    -   stripped of identifying features therefore anonymized
+-   collected for ML to predict gallstones
+    -   purpose being early detection of gallstones in patients
+-   We don't observe any negative impacts
+    -   preemptive measure
+    -   notifying patients to get checked
+-   Located in Turkey
+    -   regional bias for detection accuracy
+-   Posterior predictive check slightly off and requires tuning
+:::
 ## Key Takeaways
-<div style="font-size: 0.7em; line-height: 1.1;">
-- Comorbidity alone was not a strong predictor in this dataset
-- A combination of clinical and body composition variables provided much better prediction
-- Bayesian logistic regression helped us estimate gallstone risk while clearly showing uncertainty
-- Bayesian approach provides:
-  - Probabilities
-  - Uncertainty quantification
-  - Interpretability
-- EDA helped refine the question, and Bayesian modeling helped us answer it in a principled way
-
-</div>
-
+::: {style="font-size: 0.7em; line-height: 1.1;"}
+-   Comorbidity alone was not a strong predictor in this dataset
+-   A combination of clinical and body composition variables provided much better prediction
+-   Bayesian logistic regression helped us estimate gallstone risk while clearly showing uncertainty
+-   Bayesian approach provides:
+    -   Probabilities
+    -   Uncertainty quantification
+    -   Interpretability
+-   EDA helped refine the question, and Bayesian modeling helped us answer it in a principled way
+:::
 ## Who Benefits?
 
-- Researchers studying gallstone risk factors
-- Clinicians interested in screening-related variables (better risk assessment)
-- Patients can receive earlier detection
-- Future work on medical risk prediction using Bayesian models
-
-
-
+-   Researchers studying gallstone risk factors
+-   Clinicians interested in screening-related variables (better risk assessment)
+-   Patients can receive earlier detection
+-   Future work on medical risk prediction using Bayesian models
 
 ## Limitations
 
-- Limited dataset and sample context
-- Possible missing predictors
-- Comorbidity may have been too simplified after binarization
-- Some predictors may be correlated or reflect similar biological information
-- The model slightly underestimated the observed gallstone proportion
-
-
-
+-   Limited dataset and sample context
+-   Possible missing predictors
+-   Comorbidity may have been too simplified after binarization
+-   Some predictors may be correlated or reflect similar biological information
+-   The model slightly underestimated the observed gallstone proportion
 
 ## Future Work
 
 If we had unlimited time/resources:
 
-- Use a larger and more diverse dataset
-- Include richer clinical information
-- Explore more detailed comorbidity measures
-- Compare additional Bayesian models and nonlinear effects
-- Evaluate external validation on a new dataset
-
-
+-   Use a larger and more diverse dataset
+-   Include richer clinical information
+-   Explore more detailed comorbidity measures
+-   Compare additional Bayesian models and nonlinear effects
+-   Evaluate external validation on a new dataset
 
 ## Final Message
 
-- Bayesian modeling helps us move beyond simple prediction
-- It allows us to understand **uncertainty and probability**
-- Our results highlight important predictors of gallstone risk
+-   Bayesian modeling helps us move beyond simple prediction
+-   It allows us to understand **uncertainty and probability**
+-   Our results highlight important predictors of gallstone risk
 
 ## Thank you!
-
-
-
-
-

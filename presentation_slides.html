@@ -6,8 +6,8 @@
 <script src="presentation_slides_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="presentation_slides_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="presentation_slides_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="presentation_slides_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="presentation_slides_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.26">
 
   <meta name="author" content="Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar">
   <title>Gallstone Bayesian Analysis</title>
@@ -95,7 +95,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="presentation_slides_files/libs/revealjs/dist/theme/quarto-2c1b5f745a11cfad616ebade4a4a7d24.css">
+  <link rel="stylesheet" href="presentation_slides_files/libs/revealjs/dist/theme/quarto-0fde88a82f0356838740f155f1088782.css">
   <link href="presentation_slides_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="presentation_slides_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="presentation_slides_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -277,6 +277,7 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 </section>
 <section id="model-choice" class="slide level2">
 <h2>Model Choice</h2>
+<div style="font-size: 0.7em; line-height: 1.1;">
 <p>We used a <strong>Bayesian Logistic Regression</strong> model</p>
 <p><strong>Why?</strong></p>
 <ul>
@@ -285,20 +286,23 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <li>Incorporates prior information</li>
 <li>Provides uncertainty estimates</li>
 </ul>
+</div>
 <div style="font-size: 0.7em;">
 <p><span class="math display">\[
 \text{logit}(p_i) = \beta_0 + \beta_1(\text{vita_d}_i) + \beta_2(\text{bone_mass}_i) + \beta_3(\text{crp}_i) + \beta_4(\text{icw}_i) + \beta_5(\text{hgb}_i)
 \]</span></p>
 </div>
+<div style="font-size: 0.7em; line-height: 1.1;">
 <ul>
 <li>Main predictors selected based on EDA findings: Vitamin D, bone mass, CRP, ICW, and HGB</li>
 </ul>
+</div>
 </section>
 <section id="prior-model" class="slide level2">
 <h2>Prior Model</h2>
 <div style="font-size: 0.6em; line-height: 1.1;">
 <div class="cell" data-fontsize="0.5em">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co"># fit prior predictive model</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co"># fit prior predictive model</span></span>
 <span id="cb1-2"><a href=""></a>prior_model <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
 <span id="cb1-3"><a href=""></a>  <span class="at">formula =</span> gallstone <span class="sc">~</span> vita_d <span class="sc">+</span> bone_mass <span class="sc">+</span> crp <span class="sc">+</span> icw <span class="sc">+</span> hgb,</span>
 <span id="cb1-4"><a href=""></a>  <span class="at">data =</span> data,</span>
@@ -311,7 +315,7 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <span id="cb1-11"><a href=""></a>  <span class="at">prior =</span> <span class="fu">normal</span>(<span class="at">location =</span> <span class="dv">0</span>, <span class="at">scale =</span> <span class="fl">2.5</span>, <span class="at">autoscale =</span> T),</span>
 <span id="cb1-12"><a href=""></a>  <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">iter =</span> <span class="dv">10000</span>, <span class="at">seed =</span> <span class="dv">84735</span>,</span>
 <span id="cb1-13"><a href=""></a>  <span class="at">prior_PD =</span> T, <span class="at">refresh =</span> F, <span class="at">cores =</span> <span class="dv">16</span></span>
-<span id="cb1-14"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-14"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <ul>
 <li>Intercept:
@@ -347,8 +351,8 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <section id="posterior-model" class="slide level2">
 <h2>Posterior Model</h2>
 <div class="cell" data-fontsize="0.5em">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="co"># fitting the posterior model using the observed data</span></span>
-<span id="cb2-2"><a href=""></a>posterior_model <span class="ot">&lt;-</span> <span class="fu">update</span>(prior_model, <span class="at">prior_PD =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="co"># fitting the posterior model using the observed data</span></span>
+<span id="cb2-2"><a href=""></a>posterior_model <span class="ot">&lt;-</span> <span class="fu">update</span>(prior_model, <span class="at">prior_PD =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <ul>
 <li><p>After specifying the priors, we updated the model using the observed data to obtain the posterior distribution.</p></li>
@@ -358,14 +362,15 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <section id="model-checking-and-results-1" class="slide level2">
 <h2>Model Checking and Results</h2>
 <div class="cell" data-fontsize="0.5em">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="co"># classification summary using cutoff</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="co"># classification summary using cutoff</span></span>
 <span id="cb3-2"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">84735</span>)</span>
 <span id="cb3-3"><a href=""></a><span class="fu">classification_summary</span>(</span>
 <span id="cb3-4"><a href=""></a>  <span class="at">model =</span> posterior_model,</span>
 <span id="cb3-5"><a href=""></a>  <span class="at">data =</span> data,</span>
 <span id="cb3-6"><a href=""></a>  <span class="at">cutoff =</span> <span class="fl">0.475</span></span>
-<span id="cb3-7"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-7"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<div style="font-size: 0.7em; line-height: 1.1;">
 <ul>
 <li>Accuracy ≈ <strong>79–80%</strong></li>
 <li>Sensitivity:
@@ -378,6 +383,7 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 </ul></li>
 </ul>
 <p><strong>Cross-validation:</strong> - ~80% accuracy → stable performance</p>
+</div>
 </section>
 <section id="model-checking-and-results-2" class="slide level2">
 <h2>Model Checking and Results</h2>
@@ -388,8 +394,8 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 </ul>
 <p>Because the posterior intervals did not include 0, these predictors appeared meaningfully related to gallstone status in this dataset.</p>
 </section>
-<section id="model-comparision" class="slide level2">
-<h2>Model Comparision</h2>
+<section id="model-comparison" class="slide level2">
+<h2>Model Comparison</h2>
 <div style="font-size: 0.5em; line-height: 1.1;">
 <p>We have tested with 6 different models containing the different amount of predictors:</p>
 <ul>
@@ -418,6 +424,38 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <li>Accuracy about 49.53%</li>
 </ul></li>
 </ul>
+</div>
+</section>
+<section id="model-comparison-1" class="slide level2">
+<h2>Model Comparison</h2>
+<div style="font-size: 0.5em; line-height: 1.1;">
+<p>Here are the CV Classification Accuracy outputs and ELPD comparison:</p>
+<ul>
+<li>Model 1 (7 predictors): vita_d + bone_mass + crp + icw + hgb + hfa + gender
+<ul>
+<li>Sens: ~81.63%, Spec: ~77.59%, Acc: ~79.64%; ELPD_diff: -0.2, SE_diff: 2.3</li>
+</ul></li>
+<li>Model 2 (6 predictors): vita_d + bone_mass + crp + icw + hgb + hfa
+<ul>
+<li>Sens: ~81.13%, Spec: ~78.24%, Acc: ~79.92%; ELPD_diff: -0.1, SE_diff: 2.0</li>
+</ul></li>
+<li>Model 3 (5 predictors): vita_d + bone_mass + crp + icw + hgb
+<ul>
+<li>Sens: ~79.28%, Spec: ~77.70%, Acc: ~78.72%; ELPD_diff: 0, SE_diff: 0</li>
+</ul></li>
+<li>Model 4 (4 predictors): vita_d + bone_mass + crp + hgb
+<ul>
+<li>Sens: ~77.17%, Spec: ~79.25%, Acc: ~78.37%; ELPD_diff: -21.6, SE_diff: 7.6</li>
+</ul></li>
+<li>Model 5 (3 predictors): vita_d + bone_mass + crp
+<ul>
+<li>Sens: ~74.59%, Spec: ~83.09%, Acc: ~78.69%; ELPD_diff: -21.0, SE_diff: 7.6</li>
+</ul></li>
+<li>Model 6 (1 predictor): comorbid
+<ul>
+<li>Sens: ~0%, Spec: ~100%, Acc: ~49.52%; ELPD_diff: -256.5, SE_diff: 41.4</li>
+</ul></li>
+</ul>
 <p><strong>Results:</strong></p>
 <ul>
 <li>Models 1, 2, and 3 performed best and performed similarly under cross-validation and LOOCV</li>
@@ -442,6 +480,31 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <ul>
 <li>Overall accuracy: about <strong>79–80%</strong></li>
 <li>Better at identifying patients without gallstones than patients with gallstones</li>
+</ul>
+</div>
+</section>
+<section id="fairness-and-how-wrong" class="slide level2">
+<h2>Fairness and How Wrong</h2>
+<div style="font-size: 0.7em; line-height: 1.1;">
+<ul>
+<li>Data is collected by the hospital, without harm to patients
+<ul>
+<li>stripped of identifying features therefore anonymized</li>
+</ul></li>
+<li>collected for ML to predict gallstones
+<ul>
+<li>purpose being early detection of gallstones in patients</li>
+</ul></li>
+<li>We don’t observe any negative impacts
+<ul>
+<li>preemptive measure</li>
+<li>notifying patients to get checked</li>
+</ul></li>
+<li>Located in Turkey
+<ul>
+<li>regional bias for detection accuracy</li>
+</ul></li>
+<li>Posterior predictive check slightly off and requires tuning</li>
 </ul>
 </div>
 </section>
@@ -693,7 +756,7 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -720,80 +783,42 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
       });
     </script>
     
-
     <script>
-
       // htmlwidgets need to know to resize themselves when slides are shown/hidden.
-
       // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
-
       // slide changes (different for each slide format).
-
       (function () {
-
         // dispatch for htmlwidgets
-
         function fireSlideEnter() {
-
           const event = window.document.createEvent("Event");
-
           event.initEvent("slideenter", true, true);
-
           window.document.dispatchEvent(event);
-
         }
-
-    
 
         function fireSlideChanged(previousSlide, currentSlide) {
-
           fireSlideEnter();
 
-    
-
           // dispatch for shiny
-
           if (window.jQuery) {
-
             if (previousSlide) {
-
               window.jQuery(previousSlide).trigger("hidden");
-
             }
-
             if (currentSlide) {
-
               window.jQuery(currentSlide).trigger("shown");
-
             }
-
           }
-
         }
-
-    
 
         // hookup for slidy
-
         if (window.w3c_slidy) {
-
           window.w3c_slidy.add_observer(function (slide_num) {
-
             // slide_num starts at position 1
-
             fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
-
           });
-
         }
 
-    
-
       })();
-
     </script>
-
-    
 
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -843,13 +868,14 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy
