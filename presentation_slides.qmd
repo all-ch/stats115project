@@ -5,8 +5,9 @@ format: html
 
 ## Topic and Motivation
 
-
-
+- Many clinical and body composition variables may influence gallstone risk  
+- It is unclear which predictors are most important  
+- We are interested in identifying key factors associated with gallstones  
 
 ---
 ## Research Question
