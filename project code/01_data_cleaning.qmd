@@ -101,6 +101,8 @@ data <- data |>
 
 In the original dataset, the comorbid variable contained multiple categories representing different levels of comorbidity. For this analysis, we converted it into a binary variable where 0 indicates no comorbidities and 1 indicates the presence of at least one comorbidity. This simplifies the variable and allows us to examine whether having any comorbidity is associated with gallstones without modeling several separate categories.
 
+We simplified comorbidity from a 0–3 scale into a binary variable, since almost all values were already 0 or 1, with only a few higher values. This helped reduce complexity without losing much information.
+
 ```{r}
 # save cleaned dataset so it can be used in later analysis files
 write.csv(data, "../data/cleaned_data.csv", row.names = FALSE)

@@ -26,7 +26,7 @@ editor: visual
 
 ## Dataset
 
--   Source: UCI Irvine Machine Learning Repository
+-   Source: UCI Machine Learning Repository
     -   Contains clinical data collected from the Internal Medicine Outpatient Clinic of Ankara VN Medical Park Hospital in Turkey
     -   Contains information on 319 patients, of whom 161 were diagnosed with gallstone disease
     -   Contains 38 variables describing patient health and characteristics
@@ -132,6 +132,7 @@ ggcorrplot(
 -   Shift focus from comorbidity → multiple predictors
 
 ## Model Choice
+
 ::: {style="font-size: 0.7em; line-height: 1.1;"}
 We used a **Bayesian Logistic Regression** model
 
@@ -142,14 +143,17 @@ We used a **Bayesian Logistic Regression** model
 -   Incorporates prior information
 -   Provides uncertainty estimates
 :::
+
 ::: {style="font-size: 0.7em;"}
 $$
 \text{logit}(p_i) = \beta_0 + \beta_1(\text{vita_d}_i) + \beta_2(\text{bone_mass}_i) + \beta_3(\text{crp}_i) + \beta_4(\text{icw}_i) + \beta_5(\text{hgb}_i)
 $$
 :::
+
 ::: {style="font-size: 0.7em; line-height: 1.1;"}
 -   Main predictors selected based on EDA findings: Vitamin D, bone mass, CRP, ICW, and HGB
 :::
+
 ## Prior Model
 
 ::: {style="font-size: 0.6em; line-height: 1.1;"}
@@ -212,39 +216,6 @@ posterior_model <- update(prior_model, prior_PD = FALSE)
 
 -   This allowed us to estimate how each predictor was associated with the probability of gallstones while incorporating uncertainty.
 
-## Model Checking and Results
-
-```{r}
-#| eval: true
-#| echo: true
-#| fontsize: 0.5em
-#| results: "hide"
-# classification summary using cutoff
-set.seed(84735)
-classification_summary(
-  model = posterior_model,
-  data = data,
-  cutoff = 0.475
-)
-```
-::: {style="font-size: 0.7em; line-height: 1.1;"}
--   Accuracy ≈ **79–80%**
--   Sensitivity:
-    -   \~76% (detecting gallstones)
--   Specificity:
-    -   \~82% (detecting no gallstones)
-
-**Cross-validation:** - \~80% accuracy → stable performance
-:::
-## Model Checking and Results
-
-The model suggests:
-
--   Higher **Vitamin D**, **bone mass**, and **HGB** are associated with higher odds of gallstones
--   Higher **CRP** and **ICW** are associated with lower odds of gallstones
-
-Because the posterior intervals did not include 0, these predictors appeared meaningfully related to gallstone status in this dataset.
-
 ## Model Comparison
 
 ::: {style="font-size: 0.5em; line-height: 1.1;"}
@@ -263,7 +234,9 @@ We have tested with 6 different models containing the different amount of predic
 -   Model 6 (1 predictor): comorbid
     -   Accuracy about 49.53%
 :::
+
 ## Model Comparison
+
 ::: {style="font-size: 0.5em; line-height: 1.1;"}
 Here are the CV Classification Accuracy outputs and ELPD comparison:
 
@@ -276,9 +249,9 @@ Here are the CV Classification Accuracy outputs and ELPD comparison:
 -   Model 4 (4 predictors): vita_d + bone_mass + crp + hgb
     -   Sens: \~77.17%, Spec: \~79.25%, Acc: \~78.37%; ELPD_diff: -21.6, SE_diff: 7.6
 -   Model 5 (3 predictors): vita_d + bone_mass + crp
-    -   Sens: \~74.59%, Spec: \~83.09%, Acc: \~78.69%; ELPD_diff: -21.0, SE_diff: 7.6 
+    -   Sens: \~74.59%, Spec: \~83.09%, Acc: \~78.69%; ELPD_diff: -21.0, SE_diff: 7.6
 -   Model 6 (1 predictor): comorbid
-    -   Sens: \~0%, Spec: \~100%, Acc: \~49.52%; ELPD_diff: -256.5, SE_diff: 41.4 
+    -   Sens: \~0%, Spec: \~100%, Acc: \~49.52%; ELPD_diff: -256.5, SE_diff: 41.4
 
 **Results:**
 
@@ -288,6 +261,7 @@ Here are the CV Classification Accuracy outputs and ELPD comparison:
 :::
 
 ## Final Model Choice
+
 ::: {style="font-size: 0.7em; line-height: 1.1;"}
 We selected **Model 3**:
 
@@ -301,7 +275,18 @@ Performance:
 -   Overall accuracy: about **79–80%**
 -   Better at identifying patients without gallstones than patients with gallstones
 :::
+
+## Model Checking and Results
+
+The model suggests:
+
+-   Higher **Vitamin D**, **bone mass**, and **HGB** are associated with higher odds of gallstones
+-   Higher **CRP** and **ICW** are associated with lower odds of gallstones
+
+Because the posterior intervals did not include 0, these predictors appeared meaningfully related to gallstone status in this dataset.
+
 ## Fairness and How Wrong
+
 ::: {style="font-size: 0.7em; line-height: 1.1;"}
 -   Data is collected by the hospital, without harm to patients
     -   stripped of identifying features therefore anonymized
@@ -314,7 +299,9 @@ Performance:
     -   regional bias for detection accuracy
 -   Posterior predictive check slightly off and requires tuning
 :::
+
 ## Key Takeaways
+
 ::: {style="font-size: 0.7em; line-height: 1.1;"}
 -   Comorbidity alone was not a strong predictor in this dataset
 -   A combination of clinical and body composition variables provided much better prediction
@@ -325,6 +312,7 @@ Performance:
     -   Interpretability
 -   EDA helped refine the question, and Bayesian modeling helped us answer it in a principled way
 :::
+
 ## Who Benefits?
 
 -   Researchers studying gallstone risk factors
