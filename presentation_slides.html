@@ -6,8 +6,8 @@
 <script src="presentation_slides_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="presentation_slides_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="presentation_slides_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="presentation_slides_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="presentation_slides_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.26">
 
   <meta name="author" content="Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar">
   <title>Gallstone Bayesian Analysis</title>
@@ -95,7 +95,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="presentation_slides_files/libs/revealjs/dist/theme/quarto-2c1b5f745a11cfad616ebade4a4a7d24.css">
+  <link rel="stylesheet" href="presentation_slides_files/libs/revealjs/dist/theme/quarto-0fde88a82f0356838740f155f1088782.css">
   <link href="presentation_slides_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="presentation_slides_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="presentation_slides_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -287,7 +287,7 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <li>Provides uncertainty estimates</li>
 </ul>
 </div>
-<div style="font-size: 0.7em;">
+<div style="font-size: 0.5em;">
 <p><span class="math display">\[
 \text{logit}(p_i) = \beta_0 + \beta_1(\text{vita_d}_i) + \beta_2(\text{bone_mass}_i) + \beta_3(\text{crp}_i) + \beta_4(\text{icw}_i) + \beta_5(\text{hgb}_i)
 \]</span></p>
@@ -302,7 +302,7 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <h2>Prior Model</h2>
 <div style="font-size: 0.6em; line-height: 1.1;">
 <div class="cell" data-fontsize="0.5em">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co"># fit prior predictive model</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co"># fit prior predictive model</span></span>
 <span id="cb1-2"><a href=""></a>prior_model <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
 <span id="cb1-3"><a href=""></a>  <span class="at">formula =</span> gallstone <span class="sc">~</span> vita_d <span class="sc">+</span> bone_mass <span class="sc">+</span> crp <span class="sc">+</span> icw <span class="sc">+</span> hgb,</span>
 <span id="cb1-4"><a href=""></a>  <span class="at">data =</span> data,</span>
@@ -315,7 +315,7 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <span id="cb1-11"><a href=""></a>  <span class="at">prior =</span> <span class="fu">normal</span>(<span class="at">location =</span> <span class="dv">0</span>, <span class="at">scale =</span> <span class="fl">2.5</span>, <span class="at">autoscale =</span> T),</span>
 <span id="cb1-12"><a href=""></a>  <span class="at">chains =</span> <span class="dv">4</span>, <span class="at">iter =</span> <span class="dv">10000</span>, <span class="at">seed =</span> <span class="dv">84735</span>,</span>
 <span id="cb1-13"><a href=""></a>  <span class="at">prior_PD =</span> T, <span class="at">refresh =</span> F, <span class="at">cores =</span> <span class="dv">16</span></span>
-<span id="cb1-14"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-14"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <ul>
 <li>Intercept:
@@ -351,8 +351,8 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
 <section id="posterior-model" class="slide level2">
 <h2>Posterior Model</h2>
 <div class="cell" data-fontsize="0.5em">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="co"># fitting the posterior model using the observed data</span></span>
-<span id="cb2-2"><a href=""></a>posterior_model <span class="ot">&lt;-</span> <span class="fu">update</span>(prior_model, <span class="at">prior_PD =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="co"># fitting the posterior model using the observed data</span></span>
+<span id="cb2-2"><a href=""></a>posterior_model <span class="ot">&lt;-</span> <span class="fu">update</span>(prior_model, <span class="at">prior_PD =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <ul>
 <li><p>After specifying the priors, we updated the model using the observed data to obtain the posterior distribution.</p></li>
@@ -730,7 +730,7 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -757,80 +757,42 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
       });
     </script>
     
-
     <script>
-
       // htmlwidgets need to know to resize themselves when slides are shown/hidden.
-
       // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
-
       // slide changes (different for each slide format).
-
       (function () {
-
         // dispatch for htmlwidgets
-
         function fireSlideEnter() {
-
           const event = window.document.createEvent("Event");
-
           event.initEvent("slideenter", true, true);
-
           window.document.dispatchEvent(event);
-
         }
-
-    
 
         function fireSlideChanged(previousSlide, currentSlide) {
-
           fireSlideEnter();
 
-    
-
           // dispatch for shiny
-
           if (window.jQuery) {
-
             if (previousSlide) {
-
               window.jQuery(previousSlide).trigger("hidden");
-
             }
-
             if (currentSlide) {
-
               window.jQuery(currentSlide).trigger("shown");
-
             }
-
           }
-
         }
-
-    
 
         // hookup for slidy
-
         if (window.w3c_slidy) {
-
           window.w3c_slidy.add_observer(function (slide_num) {
-
             // slide_num starts at position 1
-
             fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
-
           });
-
         }
 
-    
-
       })();
-
     </script>
-
-    
 
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -880,13 +842,14 @@ Olivia Willard, YuNing Chou, Allinn Chen, Mihir Borkar
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy
