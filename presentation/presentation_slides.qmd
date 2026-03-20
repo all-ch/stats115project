@@ -54,7 +54,7 @@ editor: visual
 library(ggplot2)
 library(tidyverse)
 
-data <- read.csv("data/cleaned_data.csv")
+data <- read.csv("../data/cleaned_data.csv")
 ggplot(data, aes(x = factor(gallstone))) +
   geom_bar() +
   labs(
